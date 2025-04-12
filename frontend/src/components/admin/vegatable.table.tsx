@@ -1,28 +1,59 @@
 "use client";
-import { UserOutlined } from "@ant-design/icons";
-import { Button, Card, Table, Tag, Input, Select } from "antd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { MoreOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Card, Table, Tag, Input, Select, Dropdown } from "antd";
 import PaginationComponent from "../common/pagination/page";
+import PopUpDellete from "../common/popupDellete/page";
+
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getAllvegetale } from "@/reduce/vegatable/apiRequest";
+import {
+  getAllvegetale,
+  delleteVegetable,
+} from "@/reduce/vegatable/apiRequest";
 import IsActiveStart from "@/types/dataStart";
 import PopUpModals from "../vegetable/addVegetable/page";
+import UpdateVegatable from "../vegetable/updateVegatable/page";
+import toastMessage from "@/components/common/toastMessage/page";
 const { Column } = Table;
 
 const UserTable = () => {
   const [dataSource, setDataSource] = useState([]);
   const [PageSize, getPagesize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateVege, setIsUpdateVege] = useState(false);
+  const [IsDeletedVege, setIsDeletedVege] = useState(false);
+  const [nameVege, setNameVege] = useState("");
   const [total, getTotal] = useState(1);
   const [currentPage, getCurrent] = useState(1);
   const [name, setName] = useState("");
   const [isActive, setIsActive] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [idDropdown, setIdDropdow] = useState("");
   const dispatch = useDispatch();
-
+  const items = [
+    {
+      key: "edit",
+      label: "Cập nhật",
+    },
+    {
+      key: "delete",
+      label: "Xóa",
+    },
+  ];
+  const handleClickFN = (keys: string, record) => {
+    if (keys === "delete") {
+      setNameVege(record.name);
+      setIsDeletedVege(true);
+    } else {
+      setIsUpdateVege(true);
+    }
+  };
+  const handelOpenChange = (id: string, visible: boolean) => {
+    setIdDropdow(id);
+    setOpenDropdownId(visible ? id : null);
+  };
   const fetchData = async () => {
     try {
-      console.log(isActive, "isActive");
       const params = [
         name.toString() && `name=${name}`,
         isActive.toString() && `active=${isActive}`,
@@ -45,12 +76,31 @@ const UserTable = () => {
   useEffect(() => {
     fetchData();
   }, [currentPage, name, isActive]);
-  const handlePageChange = useCallback((page: number, pageSize: number) => {
-    console.log(pageSize);
+  const handlePageChange = useCallback((page: number) => {
     getCurrent(page);
     getTotal(total);
   }, []);
-
+  const handleClosePopup = () => {
+    setIsUpdateVege(false);
+    fetchData();
+  };
+  const handleClosePopup2 = () => {
+    setIsDeletedVege(false);
+  };
+  const handleDellete = async () => {
+    try {
+      const res = await delleteVegetable(dispatch, idDropdown);
+      if (res?.data.status >= 200 && res?.data.status < 300) {
+        toastMessage(true);
+        setIsDeletedVege(false);
+        fetchData();
+      } else {
+        toastMessage(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <>
       <div
@@ -123,11 +173,41 @@ const UserTable = () => {
           />
           <Column
             title="Chức năng"
-            dataIndex="fn"
             key="Chức năng"
-            render={() => <FontAwesomeIcon icon="ellipsis-vertical" />}
+            render={(_, record) => (
+              <Dropdown
+                menu={{
+                  items: items.map((item) => ({
+                    ...item,
+                    onClick: () => handleClickFN(item.key, record),
+                  })),
+                }}
+                trigger={["click"]}
+                open={openDropdownId === record._id}
+                onOpenChange={(visible) =>
+                  handelOpenChange(record._id, visible)
+                }
+              >
+                <a onClick={(e) => e.preventDefault()}>
+                  <MoreOutlined />
+                </a>
+              </Dropdown>
+            )}
           />
         </Table>
+        <UpdateVegatable
+          isModalOpen={isUpdateVege}
+          title="Cập nhật rau củ quả"
+          id={idDropdown}
+          onClose={handleClosePopup}
+        ></UpdateVegatable>
+        <PopUpDellete
+          isModalOpen={IsDeletedVege}
+          title="Xóa rau củ quả"
+          name={nameVege}
+          handleOk={handleDellete}
+          onClose={handleClosePopup2}
+        ></PopUpDellete>
         <PaginationComponent
           PageSize={PageSize}
           currentPage={currentPage}

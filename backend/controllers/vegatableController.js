@@ -58,7 +58,6 @@ const VegatableController = {
     try {
       const { name, content, price, number, unit, supplier, isActive } =
         req.body;
-
       if (
         !name ||
         !content ||
@@ -83,8 +82,8 @@ const VegatableController = {
           unit: req.body.unit,
           supplier: req.body.supplier,
           isActive: req.body.isActive,
-        },
-        { new: true, runValidators: true }
+        }
+        // { new: true, runValidators: true }
       );
 
       if (!updateVegatable) {
@@ -95,12 +94,13 @@ const VegatableController = {
         status: 200,
         success: true,
         message: "Cập nhật thành công.",
-        data: updatedUser,
+        data: updateVegatable,
       });
     } catch (error) {
       res.status(500).json({
         message: "Đã xảy ra lỗi trong quá trình cập nhật.",
         error: error.message,
+        error: error,
       });
     }
   },
@@ -123,7 +123,6 @@ const VegatableController = {
   },
   getDetailVegatable: async (req, res) => {
     try {
-      console.log(req, "req");
       const detail = await Vegatable.findById(req.params.id);
       res.status(200).json({
         status: 200,
