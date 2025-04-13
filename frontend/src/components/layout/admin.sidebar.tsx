@@ -49,7 +49,14 @@ const AdminSideBar = () => {
               label: "Quản lý các loại đồ uống",
               type: "group",
               children: [
-                { key: "3", label: "Quản lý đồ uống có ga" },
+                {
+                  key: "3",
+                  label: (
+                    <Link href={"/dashboard/drinkcacbonated"}>
+                      Quản lý đồ uống có ga
+                    </Link>
+                  ),
+                },
                 { key: "4", label: "Quản lý đồ uống có cồn" },
                 { key: "5", label: "Quản lý các loại cà phê" },
               ],
@@ -59,8 +66,8 @@ const AdminSideBar = () => {
               label: "Quản lý các loại đồ ăn liền",
               type: "group",
               children: [
-                { key: "3", label: "Quản lý các loại mì" },
-                { key: "4", label: "Quản lý các loại đồ ăn vặt" },
+                { key: "6", label: "Quản lý các loại mì" },
+                { key: "7", label: "Quản lý các loại đồ ăn vặt" },
                 { key: "8", label: "Quản lý các loại thức ăn đặc biệt" },
               ],
             },

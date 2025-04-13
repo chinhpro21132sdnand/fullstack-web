@@ -20,11 +20,11 @@ const cabonatedDrinkSchema = new mongoose.Schema({
   },
   dateto: {
     type: Date,
-    required: true,
+    default: Date.now,
   },
   datefrom: {
     type: Date,
-    required: true,
+    default: Date.now,
   },
   supplier: {
     type: String,

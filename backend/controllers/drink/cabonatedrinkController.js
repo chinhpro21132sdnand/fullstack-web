@@ -91,6 +91,7 @@ const cabonatedDrinkController = {
         const deletedcbd = await cabonatedDrink.findByIdAndDelete(
           req.params.id
         );
+        console.log(deletedcbd, "deletedcbd1");
         if (!deletedcbd) {
           res.status(404).json({ message: "ko tìm thấy đồ uống có ga" });
         }
